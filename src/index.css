@@ -1,4 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+
+/* IBM Plex Mono queda disponible como `font-mono` (metadatos, nombres de archivo) */
+@theme {
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ============================================================
+   Design tokens — Graphite (gris cálido, corporativo)
+   Tema claro por defecto; [data-theme="dark"] invierte.
+   El toggle vive en context/ThemeContext.jsx (setea el
+   atributo data-theme en <html> y persiste en localStorage).
+   ============================================================ */
+:root {
+  --bg: #f6f5f3;
+  --panel: #ffffff;
+  --panel-2: #efece7;
+  --border: #eeebe6;
+  --border-strong: #e7e4df;
+  --text: #2b2926;
+  --text-2: #6f6a62;
+  --muted: #a39d94;
+  --accent: #2b2926;
+  --accent-text: #ffffff;
+  --field: #ffffff;
+  --focus-ring: rgba(43, 41, 38, 0.12);
+  --danger: #c0533f;
+  --danger-bg: #f7ece9;
+  --shadow: 0 16px 40px -22px rgba(43, 41, 38, 0.45);
+  --shadow-sm: 0 2px 10px -6px rgba(43, 41, 38, 0.18);
+  /* toggle claro/oscuro (se resuelve solo según el tema activo) */
+  --tg-light-bg: #ffffff;
+  --tg-light-fg: #2b2926;
+  --tg-light-sh: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --tg-dark-bg: transparent;
+  --tg-dark-fg: #a39d94;
+  --tg-dark-sh: none;
+}
+
+[data-theme="dark"] {
+  --bg: #1c1b19;
+  --panel: #252320;
+  --panel-2: #2f2c28;
+  --border: #332f2b;
+  --border-strong: #3a352f;
+  --text: #eae7e1;
+  --text-2: #b3ada4;
+  --muted: #7a746b;
+  --accent: #eae7e1;
+  --accent-text: #1c1b19;
+  --field: #2a2724;
+  --focus-ring: rgba(234, 231, 225, 0.14);
+  --danger: #e08a76;
+  --danger-bg: #33231f;
+  --shadow: 0 16px 40px -22px rgba(0, 0, 0, 0.7);
+  --shadow-sm: 0 2px 12px -6px rgba(0, 0, 0, 0.5);
+  --tg-light-bg: transparent;
+  --tg-light-fg: #7a746b;
+  --tg-light-sh: none;
+  --tg-dark-bg: #3a352f;
+  --tg-dark-fg: #eae7e1;
+  --tg-dark-sh: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
 
 * {
   box-sizing: border-box;
@@ -7,7 +70,13 @@
 }
 
 body {
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  font-family: 'Hanken Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(128, 120, 110, 0.28); border-radius: 8px; }
+
+@keyframes gfade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes gblink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }

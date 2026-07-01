@@ -1,13 +1,15 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState, useCallback } from 'react'
+import ThemeToggle from './ThemeToggle'
+import { IconHome, IconDoc, IconChat, IconLogout, IconClock } from './icons'
 
 const INACTIVITY_MS = 10 * 60 * 1000
 const WARNING_SECS = 60
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: '🏠' },
-  { to: '/documents', label: 'Documentos', icon: '📄' },
-  { to: '/chat', label: 'Chat', icon: '💬' },
+  { to: '/dashboard', label: 'Dashboard', Icon: IconHome },
+  { to: '/documents', label: 'Documentos', Icon: IconDoc },
+  { to: '/chat', label: 'Chat', Icon: IconChat },
 ]
 
 export default function Layout({ children }) {
@@ -61,66 +63,79 @@ export default function Layout({ children }) {
     return () => clearInterval(countdownTimer.current)
   }, [showWarning, logout])
 
+  const navClass = ({ isActive }) =>
+    'flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-[13.5px] w-full transition ' +
+    (isActive
+      ? 'font-semibold bg-[var(--accent)] text-[var(--accent-text)]'
+      : 'font-medium text-[var(--text-2)] hover:bg-[var(--panel-2)]')
+
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      <aside className="w-56 bg-white border-r border-slate-200 flex flex-col">
-        <div className="px-5 py-5 border-b border-slate-200">
-          <h1 className="text-base font-semibold text-slate-800">ChatBot Demo</h1>
-          <p className="text-xs text-slate-400 mt-0.5">Empresa Uno</p>
+    <div className="flex min-h-screen bg-[var(--bg)]">
+      <aside className="w-[212px] shrink-0 flex flex-col px-3.5 py-4 bg-[var(--panel)] border-r border-[var(--border)]">
+        <div className="flex items-center gap-2.5 px-2 pt-1 pb-4">
+          <div
+            className="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center font-bold text-[15px]"
+            style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
+          >
+            C
+          </div>
+          <div>
+            <div className="text-[15px] font-bold text-[var(--text)] leading-none whitespace-nowrap">ChatBot</div>
+            <div className="text-[11.5px] text-[var(--muted)] mt-0.5 whitespace-nowrap">Empresa Uno</div>
+          </div>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map(({ to, label, icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition ${
-                  isActive
-                    ? 'bg-indigo-50 text-indigo-700 font-medium'
-                    : 'text-slate-600 hover:bg-slate-100'
-                }`
-              }
-            >
-              <span>{icon}</span>
-              {label}
+        <nav className="flex flex-col gap-0.5 mt-1">
+          {navItems.map(({ to, label, Icon }) => (
+            <NavLink key={to} to={to} className={navClass}>
+              <Icon /> {label}
             </NavLink>
           ))}
         </nav>
 
-        <div className="px-3 pb-4">
+        <div className="mt-auto flex flex-col gap-2.5">
+          <ThemeToggle />
           <button
-            onClick={() => { localStorage.removeItem('token'); navigate('/login') }}
-            className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-500 hover:bg-red-50 hover:text-red-500 transition"
+            onClick={logout}
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-[13.5px] text-[var(--muted)] w-full text-left transition hover:bg-[var(--danger-bg)] hover:text-[var(--danger)]"
           >
-            <span>🚪</span> Cerrar sesión
+            <IconLogout /> Cerrar sesión
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto h-screen">
         {children}
       </main>
 
       {showWarning && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full mx-4 text-center">
-            <div className="text-4xl mb-4">⏱️</div>
-            <h2 className="text-lg font-semibold text-slate-800 mb-2">¿Seguís ahí?</h2>
-            <p className="text-sm text-slate-500 mb-6">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-[2px] animate-[gfade_.2s_ease]">
+          <div
+            className="rounded-[20px] p-8 max-w-sm w-[90%] mx-4 text-center bg-[var(--panel)] border border-[var(--border-strong)]"
+            style={{ boxShadow: '0 30px 70px -20px rgba(0,0,0,0.5)' }}
+          >
+            <div
+              className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center mx-auto mb-4"
+              style={{ background: 'var(--panel-2)', color: 'var(--text)' }}
+            >
+              <IconClock />
+            </div>
+            <h2 className="text-lg font-bold text-[var(--text)] mb-2">¿Seguís ahí?</h2>
+            <p className="text-sm text-[var(--text-2)] mb-6 leading-relaxed">
               Tu sesión se cerrará por inactividad en{' '}
-              <span className="font-semibold text-indigo-600">{countdown}</span> segundos.
+              <span className="font-bold text-[var(--text)]">{countdown}</span> segundos.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2.5">
               <button
                 onClick={logout}
-                className="flex-1 px-4 py-2 rounded-lg text-sm border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
+                className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition border border-[var(--border-strong)] text-[var(--text-2)] hover:bg-[var(--panel-2)]"
               >
                 Cerrar sesión
               </button>
               <button
                 onClick={handleContinue}
-                className="flex-1 px-4 py-2 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition hover:opacity-90"
+                style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
               >
                 Seguir
               </button>

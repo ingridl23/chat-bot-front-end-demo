@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { getDocuments, uploadDocument } from '../services/api'
+import { IconDoc, IconUpload } from '../components/icons'
 
 const ORG_ID = 1
 const AREA_ID = 1
@@ -57,7 +58,7 @@ export default function Documents() {
   }
 
   const formatSize = (bytes) => {
-    if (!bytes) return '-'
+    if (!bytes) return '—'
     return bytes < 1024 * 1024
       ? `${(bytes / 1024).toFixed(0)} KB`
       : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
@@ -65,65 +66,96 @@ export default function Documents() {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-xl font-semibold text-slate-800 mb-6">Documentos</h2>
+      <div className="max-w-3xl mx-auto px-9 py-10">
+        <h2 className="text-2xl font-bold text-[var(--text)] mb-6 tracking-tight">Documentos</h2>
 
-        {/* Upload form */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <h3 className="text-sm font-medium text-slate-700 mb-4">Subir nuevo documento</h3>
-          <div className="space-y-3">
-            <input
-              type="text"
-              placeholder="Título del documento"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
-            />
+        {/* Subir */}
+        <div
+          className="rounded-[16px] p-[22px] mb-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
+        >
+          <h3 className="text-sm font-semibold text-[var(--text)] mb-4">Subir nuevo documento</h3>
+
+          <input
+            type="text"
+            placeholder="Título del documento"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full rounded-[10px] px-3.5 py-2.5 text-sm outline-none border transition mb-3
+              bg-[var(--field)] text-[var(--text)] border-[var(--border-strong)]
+              placeholder:text-[var(--muted)] focus:border-[var(--accent)]
+              focus:shadow-[0_0_0_3px_var(--focus-ring)]"
+            required
+          />
+
+          <label className="flex items-center gap-3 mb-1 cursor-pointer">
+            <span
+              className="inline-flex items-center gap-1.5 rounded-[9px] px-3.5 py-2.5 text-[13px] font-semibold whitespace-nowrap"
+              style={{ background: 'var(--panel-2)', color: 'var(--text)' }}
+            >
+              <IconUpload /> Elegir archivo
+            </span>
+            <span className="text-[13px] text-[var(--muted)] truncate">
+              {file ? file.name : 'Ningún archivo seleccionado'}
+            </span>
             <input
               ref={fileRef}
               type="file"
               accept="application/pdf"
               onChange={(e) => setFile(e.target.files[0] || null)}
-              className="w-full text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+              className="hidden"
             />
-            {file && (
-              <p className="text-xs text-green-600">✓ {file.name} ({(file.size / 1024).toFixed(0)} KB)</p>
-            )}
-            {uploadError && <p className="text-red-500 text-sm">{uploadError}</p>}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isPending}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
-            >
-              {isPending ? 'Subiendo...' : 'Subir PDF'}
-            </button>
-          </div>
+          </label>
+
+          {uploadError && <p className="text-sm mt-2" style={{ color: 'var(--danger)' }}>{uploadError}</p>}
+
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isPending}
+            className="mt-4 rounded-[10px] px-[18px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition hover:opacity-90 disabled:opacity-50 whitespace-nowrap"
+            style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
+          >
+            {isPending ? 'Subiendo...' : 'Subir PDF'}
+          </button>
         </div>
 
-        {/* Document list */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100">
-            <h3 className="text-sm font-medium text-slate-700">Documentos cargados</h3>
+        {/* Listado */}
+        <div
+          className="rounded-[16px] overflow-hidden bg-[var(--panel)] border border-[var(--border-strong)]"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
+        >
+          <div className="flex items-center justify-between px-[22px] py-4 border-b border-[var(--border)]">
+            <h3 className="text-sm font-semibold text-[var(--text)] whitespace-nowrap">Documentos cargados</h3>
+            <span className="text-[11px] text-[var(--muted)] font-mono whitespace-nowrap">
+              {documents.length} archivo{documents.length === 1 ? '' : 's'}
+            </span>
           </div>
 
           {isLoading ? (
-            <p className="text-sm text-slate-400 p-6">Cargando...</p>
+            <p className="text-sm text-[var(--muted)] p-6">Cargando...</p>
           ) : documents.length === 0 ? (
-            <p className="text-sm text-slate-400 p-6">No hay documentos todavía.</p>
+            <p className="text-sm text-[var(--muted)] p-6">No hay documentos todavía.</p>
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul>
               {documents.map((doc) => (
-                <li key={doc.id} className="flex items-center justify-between px-6 py-4">
+                <li
+                  key={doc.id}
+                  className="flex items-center justify-between px-[22px] py-[15px] border-t border-[var(--border)]"
+                >
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">📄</span>
+                    <div
+                      className="w-[38px] h-[38px] rounded-[9px] flex items-center justify-center"
+                      style={{ background: 'var(--panel-2)', color: 'var(--text-2)' }}
+                    >
+                      <IconDoc />
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-800">{doc.title}</p>
-                      <p className="text-xs text-slate-400">{doc.fileName}</p>
+                      <p className="text-sm font-semibold text-[var(--text)]">{doc.title}</p>
+                      <p className="text-xs text-[var(--muted)] mt-0.5 font-mono">{doc.fileName}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-slate-400">{formatSize(doc.fileSize)}</span>
+                  <span className="text-[12.5px] text-[var(--muted)] font-mono">{formatSize(doc.fileSize)}</span>
                 </li>
               ))}
             </ul>

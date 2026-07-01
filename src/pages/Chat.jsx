@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { askChat } from '../services/api'
+import { IconSend } from '../components/icons'
 
 const ORG_ID = 1
-const INITIAL_MESSAGE = { role: 'bot', text: 'Hola! Puedo responder preguntas sobre los documentos cargados. ¿En qué te ayudo?' }
+const INITIAL_MESSAGE = { role: 'bot', text: 'Hola. Puedo responder preguntas sobre los documentos cargados. ¿En qué te ayudo?' }
 const STORAGE_KEY = 'chat_messages'
 
 export default function Chat() {
@@ -43,7 +44,7 @@ export default function Chat() {
 
     try {
       const { data } = await askChat(question, ORG_ID)
-      setMessages((prev) => [...prev, { role: 'bot', text: data.answer }])
+      setMessages((prev) => [...prev, { role: 'bot', text: data.answer, source: data.source }])
     } catch {
       setMessages((prev) => [...prev, { role: 'bot', text: 'Ocurrió un error. Intentá de nuevo.' }])
     } finally {
@@ -51,42 +52,83 @@ export default function Chat() {
     }
   }
 
+  const Avatar = () => (
+    <div
+      className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center text-[11px] font-bold"
+      style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
+    >
+      AI
+    </div>
+  )
+
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto flex flex-col h-[calc(100vh-5rem)]">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-slate-800">Chat con el agente</h2>
+      <div className="max-w-[720px] mx-auto px-9 py-7 h-screen flex flex-col">
+        <div className="flex items-center justify-between mb-[18px]">
+          <div>
+            <h2 className="text-xl font-bold text-[var(--text)] tracking-tight">Chat con el agente</h2>
+            <p className="text-[12.5px] text-[var(--muted)] mt-0.5">Responde según tus documentos cargados</p>
+          </div>
           <button
             onClick={clearChat}
-            className="text-xs text-slate-400 hover:text-slate-600 transition"
+            className="rounded-[9px] px-3 py-[7px] text-[12.5px] cursor-pointer transition whitespace-nowrap
+              bg-[var(--panel)] text-[var(--text-2)] border border-[var(--border-strong)] hover:bg-[var(--panel-2)]"
           >
             Limpiar historial
           </button>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 bg-white rounded-2xl shadow-sm overflow-y-auto p-4 space-y-3 mb-4">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
+        {/* Mensajes */}
+        <div
+          className="flex-1 min-h-0 overflow-y-auto rounded-[16px] p-5 flex flex-col gap-3.5
+            bg-[var(--panel)] border border-[var(--border-strong)]"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
+        >
+          {messages.map((msg, i) => {
+            const isUser = msg.role === 'user'
+            return (
               <div
-                className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap ${
-                  msg.role === 'user'
-                    ? 'bg-indigo-600 text-white rounded-br-sm'
-                    : 'bg-slate-100 text-slate-800 rounded-bl-sm'
-                }`}
+                key={i}
+                className={`flex gap-2.5 animate-[gfade_.25s_ease] ${isUser ? 'justify-end' : 'justify-start'}`}
               >
-                {msg.text}
+                {!isUser && <Avatar />}
+                <div className="flex flex-col gap-2 max-w-[82%]">
+                  <div
+                    className="text-[13.5px] leading-relaxed px-3.5 py-2.5 whitespace-pre-wrap"
+                    style={{
+                      background: isUser ? 'var(--accent)' : 'var(--panel-2)',
+                      color: isUser ? 'var(--accent-text)' : 'var(--text)',
+                      fontWeight: isUser ? 500 : 400,
+                      borderRadius: '14px',
+                      borderTopRightRadius: isUser ? '4px' : '14px',
+                      borderTopLeftRadius: isUser ? '14px' : '4px',
+                    }}
+                  >
+                    {msg.text}
+                  </div>
+                  {msg.source && (
+                    <div
+                      className="inline-flex items-center gap-1.5 self-start rounded-[9px] px-2.5 py-1.5 text-[11.5px]
+                        bg-[var(--panel-2)] text-[var(--text-2)] border border-[var(--border)]"
+                    >
+                      {msg.source}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
 
           {loading && (
-            <div className="flex justify-start">
-              <div className="bg-slate-100 text-slate-400 px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm">
-                Escribiendo...
+            <div className="flex gap-2.5 items-center">
+              <Avatar />
+              <div
+                className="px-3.5 py-3 flex gap-1.5"
+                style={{ background: 'var(--panel-2)', borderRadius: '14px', borderTopLeftRadius: '4px' }}
+              >
+                <span className="w-[7px] h-[7px] rounded-full animate-[gblink_1.2s_infinite]" style={{ background: 'var(--muted)' }} />
+                <span className="w-[7px] h-[7px] rounded-full animate-[gblink_1.2s_infinite_0.2s]" style={{ background: 'var(--muted)' }} />
+                <span className="w-[7px] h-[7px] rounded-full animate-[gblink_1.2s_infinite_0.4s]" style={{ background: 'var(--muted)' }} />
               </div>
             </div>
           )}
@@ -94,21 +136,27 @@ export default function Chat() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSend} className="flex gap-2">
+        <form
+          onSubmit={handleSend}
+          className="flex items-center gap-2.5 mt-3.5 rounded-[14px] pl-4 pr-[7px] py-[7px]
+            bg-[var(--panel)] border border-[var(--border-strong)] focus-within:border-[var(--accent)]
+            focus-within:shadow-[0_0_0_3px_var(--focus-ring)] transition"
+        >
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Hacé una pregunta sobre los documentos..."
-            className="flex-1 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Hacé una pregunta sobre los documentos…"
+            className="flex-1 bg-transparent outline-none text-sm text-[var(--text)] placeholder:text-[var(--muted)]"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition disabled:opacity-50"
+            className="w-10 h-10 rounded-[10px] shrink-0 flex items-center justify-center cursor-pointer transition hover:opacity-90 disabled:opacity-50"
+            style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
           >
-            Enviar
+            <IconSend />
           </button>
         </form>
       </div>
