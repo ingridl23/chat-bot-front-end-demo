@@ -1,7 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import ThemeToggle from './ThemeToggle'
-import { IconHome, IconDoc, IconChat, IconLogout, IconClock } from './icons'
+import { useAuth } from '../context/AuthContext'
+import { IconHome, IconDoc, IconChat, IconUser, IconBuilding, IconLogout, IconClock } from './icons'
 
 const INACTIVITY_MS = 10 * 60 * 1000
 const WARNING_SECS = 60
@@ -10,10 +12,17 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', Icon: IconHome },
   { to: '/documents', label: 'Documentos', Icon: IconDoc },
   { to: '/chat', label: 'Chat', Icon: IconChat },
+  { to: '/profile', label: 'Mi perfil', Icon: IconUser },
+]
+
+const adminNavItems = [
+  { to: '/company', label: 'Empresa', Icon: IconBuilding },
 ]
 
 export default function Layout({ children }) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { isAdmin, user } = useAuth()
   const [showWarning, setShowWarning] = useState(false)
   const [countdown, setCountdown] = useState(WARNING_SECS)
   const inactivityTimer = useRef(null)
@@ -21,8 +30,9 @@ export default function Layout({ children }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem('token')
+    queryClient.removeQueries({ queryKey: ['currentUser'] })
     navigate('/login')
-  }, [navigate])
+  }, [navigate, queryClient])
 
   const resetInactivity = useCallback(() => {
     if (showWarning) return
@@ -81,12 +91,12 @@ export default function Layout({ children }) {
           </div>
           <div>
             <div className="text-[15px] font-bold text-[var(--text)] leading-none whitespace-nowrap">ChatBot</div>
-            <div className="text-[11.5px] text-[var(--muted)] mt-0.5 whitespace-nowrap">Empresa Uno</div>
+            <div className="text-[11.5px] text-[var(--muted)] mt-0.5 whitespace-nowrap h-[14px] leading-[14px]">{user?.organization?.name}</div>
           </div>
         </div>
 
         <nav className="flex flex-col gap-0.5 mt-1">
-          {navItems.map(({ to, label, Icon }) => (
+          {[...navItems, ...(isAdmin ? adminNavItems : [])].map(({ to, label, Icon }) => (
             <NavLink key={to} to={to} className={navClass}>
               <Icon /> {label}
             </NavLink>

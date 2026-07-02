@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Layout from '../components/Layout'
-import { getDocuments, uploadDocument } from '../services/api'
-import { IconDoc, IconUpload } from '../components/icons'
+import { getDocuments, uploadDocument, deleteDocument } from '../services/api'
+import { IconDoc, IconUpload, IconTrash } from '../components/icons'
 
 const ORG_ID = 1
 const AREA_ID = 1
@@ -55,6 +55,31 @@ export default function Documents() {
     }
     setUploadError('')
     upload()
+  }
+
+  const [deleteError, setDeleteError] = useState('')
+
+  const { mutate: removeDocument, isPending: isDeleting, variables: deletingId } = useMutation({
+    mutationFn: ({ id }) => deleteDocument(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+      setDeleteError('')
+    },
+    onError: (err, { title }) => {
+      const status = err?.response?.status
+      const msg = status >= 500
+        ? `No se pudo eliminar "${title}" por un error en el servidor. Intentá de nuevo más tarde.`
+        : `No se pudo eliminar "${title}": ${err?.response?.data?.message || err?.message || 'error desconocido'}`
+      setDeleteError(msg)
+    },
+  })
+
+  const [docToDelete, setDocToDelete] = useState(null)
+
+  const confirmDelete = () => {
+    setDeleteError('')
+    removeDocument({ id: docToDelete.id, title: docToDelete.title })
+    setDocToDelete(null)
   }
 
   const formatSize = (bytes) => {
@@ -132,6 +157,10 @@ export default function Documents() {
             </span>
           </div>
 
+          {deleteError && (
+            <p className="text-sm px-[22px] pt-3" style={{ color: 'var(--danger)' }}>{deleteError}</p>
+          )}
+
           {isLoading ? (
             <p className="text-sm text-[var(--muted)] p-6">Cargando...</p>
           ) : documents.length === 0 ? (
@@ -155,13 +184,61 @@ export default function Documents() {
                       <p className="text-xs text-[var(--muted)] mt-0.5 font-mono">{doc.fileName}</p>
                     </div>
                   </div>
-                  <span className="text-[12.5px] text-[var(--muted)] font-mono">{formatSize(doc.fileSize)}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-[12.5px] text-[var(--muted)] font-mono">{formatSize(doc.fileSize)}</span>
+                    <button
+                      type="button"
+                      onClick={() => setDocToDelete(doc)}
+                      disabled={isDeleting && deletingId?.id === doc.id}
+                      aria-label={`Eliminar ${doc.title}`}
+                      className="w-8 h-8 rounded-[9px] flex items-center justify-center cursor-pointer transition text-[var(--muted)]
+                        hover:bg-[var(--danger-bg)] hover:text-[var(--danger)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <IconTrash size={15} />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
       </div>
+
+      {docToDelete && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-[2px] animate-[gfade_.2s_ease]">
+          <div
+            className="rounded-[20px] p-8 max-w-sm w-[90%] mx-4 text-center bg-[var(--panel)] border border-[var(--border-strong)]"
+            style={{ boxShadow: '0 30px 70px -20px rgba(0,0,0,0.5)' }}
+          >
+            <div
+              className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center mx-auto mb-4"
+              style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}
+            >
+              <IconTrash size={22} />
+            </div>
+            <h2 className="text-lg font-bold text-[var(--text)] mb-2">¿Eliminar documento?</h2>
+            <p className="text-sm text-[var(--text-2)] mb-6 leading-relaxed">
+              Esta acción no se puede deshacer. Se eliminará{' '}
+              <span className="font-bold text-[var(--text)]">"{docToDelete.title}"</span> permanentemente.
+            </p>
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => setDocToDelete(null)}
+                className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition border border-[var(--border-strong)] text-[var(--text-2)] hover:bg-[var(--panel-2)]"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition hover:opacity-90"
+                style={{ background: 'var(--danger)', color: '#fff' }}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }

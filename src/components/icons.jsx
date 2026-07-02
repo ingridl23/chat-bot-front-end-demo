@@ -72,3 +72,28 @@ export const IconUpload = ({ size = 15, ...p }) => (
     <path d="M5 20h14" />
   </svg>
 )
+
+export const IconTrash = ({ size = 16, ...p }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...base} {...p}>
+    <path d="M4 7h16" />
+    <path d="M9 7V4h6v3" />
+    <path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" />
+    <path d="M10 11v6M14 11v6" />
+  </svg>
+)
+
+export const IconUser = ({ size = 18, ...p }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...base} {...p}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+  </svg>
+)
+
+export const IconBuilding = ({ size = 18, ...p }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...base} {...p}>
+    <path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16" />
+    <path d="M15 10h4a1 1 0 0 1 1 1v10" />
+    <path d="M2 21h20" />
+    <path d="M8 8h.01M8 12h.01M8 16h.01M18 14h.01M18 17h.01" />
+  </svg>
+)
