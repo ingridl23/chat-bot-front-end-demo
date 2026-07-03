@@ -1,19 +1,20 @@
 import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Layout from '../components/Layout'
-import { getDocuments, uploadDocument, deleteDocument } from '../services/api'
+import { useAuth } from '../context/AuthContext'
+import { getDocuments, uploadDocument, deleteDocument, getAreas, getErrorMessage } from '../services/api'
 import { IconDoc, IconUpload, IconTrash } from '../components/icons'
 
-const ORG_ID = 1
-const AREA_ID = 1
+// El backend no expone un endpoint de estados de documento: se usa "1" (pendiente/activo) por defecto.
 const STATUS_ID = 1
-const UPLOADED_BY = 1
 
 export default function Documents() {
+  const { isAdmin, isAreaAdmin, areaId, areaName } = useAuth()
   const queryClient = useQueryClient()
   const fileRef = useRef()
   const [title, setTitle] = useState('')
   const [file, setFile] = useState(null)
+  const [selectedAreaId, setSelectedAreaId] = useState('')
   const [uploadError, setUploadError] = useState('')
 
   const { data: documents = [], isLoading } = useQuery({
@@ -24,27 +25,38 @@ export default function Documents() {
     },
   })
 
+  const { data: areas = [] } = useQuery({
+    queryKey: ['areas'],
+    queryFn: async () => {
+      const { data } = await getAreas()
+      return data
+    },
+    enabled: isAdmin,
+  })
+
   const { mutate: upload, isPending } = useMutation({
     mutationFn: async () => {
       const form = new FormData()
       form.append('filePath', file)
       form.append('title', title)
-      form.append('organizationId', ORG_ID)
-      form.append('areaId', AREA_ID)
+      if (isAreaAdmin) {
+        form.append('areaIds', areaId)
+      } else if (isAdmin && selectedAreaId) {
+        form.append('areaIds', selectedAreaId)
+      }
       form.append('statusId', STATUS_ID)
-      form.append('uploadedById', UPLOADED_BY)
       return uploadDocument(form)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] })
       setTitle('')
       setFile(null)
+      setSelectedAreaId('')
       fileRef.current.value = ''
       setUploadError('')
     },
     onError: (err) => {
-      const msg = err?.response?.data?.message || err?.response?.status || err?.message || 'Error desconocido'
-      setUploadError(`Error al subir: ${msg}`)
+      setUploadError(`Error al subir: ${getErrorMessage(err)}`)
     },
   })
 
@@ -69,7 +81,7 @@ export default function Documents() {
       const status = err?.response?.status
       const msg = status >= 500
         ? `No se pudo eliminar "${title}" por un error en el servidor. Intentá de nuevo más tarde.`
-        : `No se pudo eliminar "${title}": ${err?.response?.data?.message || err?.message || 'error desconocido'}`
+        : `No se pudo eliminar "${title}": ${getErrorMessage(err)}`
       setDeleteError(msg)
     },
   })
@@ -131,6 +143,30 @@ export default function Documents() {
               className="hidden"
             />
           </label>
+
+          {isAreaAdmin && (
+            <p className="text-[12.5px] mt-3" style={{ color: 'var(--muted)' }}>
+              Se subirá a tu área: <span className="font-semibold text-[var(--text)]">{areaName || '—'}</span>
+            </p>
+          )}
+
+          {isAdmin && (
+            <div className="mt-3">
+              <label className="block text-[13px] font-semibold text-[var(--text-2)] mb-1.5">Área de destino</label>
+              <select
+                value={selectedAreaId}
+                onChange={(e) => setSelectedAreaId(e.target.value)}
+                className="w-full rounded-[10px] px-3.5 py-2.5 text-sm outline-none border transition
+                  bg-[var(--field)] text-[var(--text)] border-[var(--border-strong)]
+                  focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--focus-ring)]"
+              >
+                <option value="">Sin área (documento global)</option>
+                {areas.map((area) => (
+                  <option key={area.id} value={area.id}>{area.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {uploadError && <p className="text-sm mt-2" style={{ color: 'var(--danger)' }}>{uploadError}</p>}
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import ThemeToggle from '../components/ThemeToggle'
 
 export default function Login() {
@@ -8,6 +9,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { setToken } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -15,7 +17,9 @@ export default function Login() {
     setLoading(true)
     try {
       const { data: token } = await login(form.userName, form.password)
-      localStorage.setItem('token', token)
+      // setToken tira la cache de la sesión anterior y dispara un GET /users/me
+      // fresco con el token nuevo (ver AuthContext).
+      setToken(token)
       navigate('/dashboard')
     } catch {
       setError('Usuario o contraseña incorrectos')

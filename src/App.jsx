@@ -17,10 +17,10 @@ const PrivateRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" replace />
 }
 
-const AdminRoute = ({ children }) => {
-  const { isAdmin, isLoading } = useAuth()
+const StaffRoute = ({ children }) => {
+  const { isStaff, isLoading } = useAuth()
   if (isLoading) return null
-  return isAdmin ? children : <Navigate to="/dashboard" replace />
+  return isStaff ? children : <Navigate to="/dashboard" replace />
 }
 
 export default function App() {
@@ -32,10 +32,10 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/documents" element={<PrivateRoute><Documents /></PrivateRoute>} />
+              <Route path="/documents" element={<PrivateRoute><StaffRoute><Documents /></StaffRoute></PrivateRoute>} />
               <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-              <Route path="/company" element={<PrivateRoute><AdminRoute><Company /></AdminRoute></PrivateRoute>} />
+              <Route path="/company" element={<PrivateRoute><StaffRoute><Company /></StaffRoute></PrivateRoute>} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </BrowserRouter>

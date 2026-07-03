@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../context/AuthContext'
 import { IconHome, IconDoc, IconChat, IconUser, IconBuilding, IconLogout, IconClock } from './icons'
@@ -8,31 +7,22 @@ import { IconHome, IconDoc, IconChat, IconUser, IconBuilding, IconLogout, IconCl
 const INACTIVITY_MS = 10 * 60 * 1000
 const WARNING_SECS = 60
 
-const navItems = [
-  { to: '/dashboard', label: 'Dashboard', Icon: IconHome },
-  { to: '/documents', label: 'Documentos', Icon: IconDoc },
-  { to: '/chat', label: 'Chat', Icon: IconChat },
-  { to: '/profile', label: 'Mi perfil', Icon: IconUser },
-]
-
-const adminNavItems = [
-  { to: '/company', label: 'Empresa', Icon: IconBuilding },
-]
+const dashboardItem = { to: '/dashboard', label: 'Dashboard', Icon: IconHome }
+const chatItem = { to: '/chat', label: 'Chat', Icon: IconChat }
+const profileItem = { to: '/profile', label: 'Mi perfil', Icon: IconUser }
 
 export default function Layout({ children }) {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  const { isAdmin, user } = useAuth()
+  const { isAdmin, isStaff, user, logout: authLogout } = useAuth()
   const [showWarning, setShowWarning] = useState(false)
   const [countdown, setCountdown] = useState(WARNING_SECS)
   const inactivityTimer = useRef(null)
   const countdownTimer = useRef(null)
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token')
-    queryClient.removeQueries({ queryKey: ['currentUser'] })
+    authLogout()
     navigate('/login')
-  }, [navigate, queryClient])
+  }, [navigate, authLogout])
 
   const resetInactivity = useCallback(() => {
     if (showWarning) return
@@ -91,12 +81,18 @@ export default function Layout({ children }) {
           </div>
           <div>
             <div className="text-[15px] font-bold text-[var(--text)] leading-none whitespace-nowrap">ChatBot</div>
-            <div className="text-[11.5px] text-[var(--muted)] mt-0.5 whitespace-nowrap h-[14px] leading-[14px]">{user?.organization?.name}</div>
+            <div className="text-[11.5px] text-[var(--muted)] mt-0.5 whitespace-nowrap h-[14px] leading-[14px]">{user?.organization?.name ?? user?.organizationName}</div>
           </div>
         </div>
 
         <nav className="flex flex-col gap-0.5 mt-1">
-          {[...navItems, ...(isAdmin ? adminNavItems : [])].map(({ to, label, Icon }) => (
+          {[
+            dashboardItem,
+            ...(isStaff ? [{ to: '/documents', label: 'Documentos', Icon: IconDoc }] : []),
+            chatItem,
+            profileItem,
+            ...(isStaff ? [{ to: '/company', label: isAdmin ? 'Empresa' : 'Mi área', Icon: IconBuilding }] : []),
+          ].map(({ to, label, Icon }) => (
             <NavLink key={to} to={to} className={navClass}>
               <Icon /> {label}
             </NavLink>
