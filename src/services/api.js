@@ -63,8 +63,12 @@ export const updateOrganization = (id, data) =>
     api.put(`/organizations/${id}`, data)
 
 // --- Configuración de IA de la organización (y, opcionalmente, por área) ---
-export const getActiveAISettings = (organizationId) =>
-    api.get(`/aisettings/active/${organizationId}`)
+// Si se pasa areaId, trae la config activa de esa área con fallback automático (del backend)
+// a la de la organización si el área no tiene una propia.
+export const getActiveAISettings = (organizationId, areaId) =>
+    areaId
+        ? api.get(`/aisettings/active/${organizationId}/area/${areaId}`)
+        : api.get(`/aisettings/active/${organizationId}`)
 
 export const getAISettingsByOrganization = (organizationId) =>
     api.get(`/aisettings/organization/${organizationId}`)

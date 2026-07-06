@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { useAuth } from '../context/AuthContext'
+import { splitPrompt, joinPrompt } from '../utils/systemPrompt'
 import {
   getOrganization,
   updateOrganization,
@@ -32,8 +33,10 @@ const ADMIN_TABS = [
   { id: 'members', label: 'Integrantes' },
 ]
 
+// El tono del chat lo configura únicamente el ADMIN general (el backend rechaza con 403
+// cualquier intento de un AREA_ADMIN de crear/editar AISettings), por eso no se le muestra
+// esta pestaña.
 const AREA_ADMIN_TABS = [
-  { id: 'ai', label: 'Tono del chat' },
   { id: 'members', label: 'Integrantes de mi área' },
 ]
 
@@ -53,7 +56,7 @@ export default function Company() {
         <p className="text-[14.5px] text-[var(--text-2)] mb-7">
           {isAdmin
             ? 'Personalizá el chatbot y administrá el acceso de tu organización.'
-            : 'Personalizá el tono del chat para tu área y consultá sus integrantes.'}
+            : 'Consultá los integrantes de tu área.'}
         </p>
 
         <div
@@ -206,28 +209,6 @@ function BrandingTab({ organizationId }) {
       </button>
     </form>
   )
-}
-
-// El backend guarda el saludo y el tono en un único campo systemPrompt: estos marcadores
-// permiten mostrarlos como dos campos separados en el form y reunirlos de vuelta al guardar.
-const SALUDO_MARKER = '[SALUDO]'
-const INSTRUCCIONES_MARKER = '[INSTRUCCIONES]'
-
-function splitPrompt(systemPrompt) {
-  if (!systemPrompt) return { greeting: '', tone: '' }
-  const saludoIdx = systemPrompt.indexOf(SALUDO_MARKER)
-  const instrIdx = systemPrompt.indexOf(INSTRUCCIONES_MARKER)
-  if (saludoIdx === -1 || instrIdx === -1) {
-    return { greeting: '', tone: systemPrompt }
-  }
-  return {
-    greeting: systemPrompt.slice(saludoIdx + SALUDO_MARKER.length, instrIdx).trim(),
-    tone: systemPrompt.slice(instrIdx + INSTRUCCIONES_MARKER.length).trim(),
-  }
-}
-
-function joinPrompt(greeting, tone) {
-  return `${SALUDO_MARKER}\n${greeting.trim()}\n\n${INSTRUCCIONES_MARKER}\n${tone.trim()}`
 }
 
 function ChatToneTab({ organizationId, isAdmin, fixedAreaId }) {

@@ -8,6 +8,11 @@ import { IconDoc, IconUpload, IconTrash } from '../components/icons'
 // El backend no expone un endpoint de estados de documento: se usa "1" (pendiente/activo) por defecto.
 const STATUS_ID = 1
 
+// Documento sin áreas asignadas = visible/afecta a toda la organización. El backend ya
+// rechaza (403) que un AREA_ADMIN borre o edite uno de estos, pero acá se oculta directamente
+// el botón para no ofrecer una acción que siempre va a fallar.
+const isGlobalDoc = (doc) => !doc.areaIds || doc.areaIds.length === 0
+
 export default function Documents() {
   const { isAdmin, isAreaAdmin, areaId, areaName } = useAuth()
   const queryClient = useQueryClient()
@@ -221,17 +226,27 @@ export default function Documents() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
+                    {isGlobalDoc(doc) && (
+                      <span
+                        className="rounded-[9px] px-2.5 py-1.5 text-[11.5px] font-semibold whitespace-nowrap"
+                        style={{ background: 'var(--panel-2)', color: 'var(--text-2)' }}
+                      >
+                        Global
+                      </span>
+                    )}
                     <span className="text-[12.5px] text-[var(--muted)] font-mono">{formatSize(doc.fileSize)}</span>
-                    <button
-                      type="button"
-                      onClick={() => setDocToDelete(doc)}
-                      disabled={isDeleting && deletingId?.id === doc.id}
-                      aria-label={`Eliminar ${doc.title}`}
-                      className="w-8 h-8 rounded-[9px] flex items-center justify-center cursor-pointer transition text-[var(--muted)]
-                        hover:bg-[var(--danger-bg)] hover:text-[var(--danger)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <IconTrash size={15} />
-                    </button>
+                    {(isAdmin || !isGlobalDoc(doc)) && (
+                      <button
+                        type="button"
+                        onClick={() => setDocToDelete(doc)}
+                        disabled={isDeleting && deletingId?.id === doc.id}
+                        aria-label={`Eliminar ${doc.title}`}
+                        className="w-8 h-8 rounded-[9px] flex items-center justify-center cursor-pointer transition text-[var(--muted)]
+                          hover:bg-[var(--danger-bg)] hover:text-[var(--danger)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <IconTrash size={15} />
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}

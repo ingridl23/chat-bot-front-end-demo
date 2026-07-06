@@ -1,36 +1,62 @@
 import { useState, useRef, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import Layout from '../components/Layout'
-import { askChat } from '../services/api'
+import { askChat, getActiveAISettings } from '../services/api'
 import { IconSend } from '../components/icons'
+import { useAuth } from '../context/AuthContext'
+import { splitPrompt } from '../utils/systemPrompt'
 
-const ORG_ID = 1
-const INITIAL_MESSAGE = { role: 'bot', text: 'Hola. Puedo responder preguntas sobre los documentos cargados. ¿En qué te ayudo?' }
-const STORAGE_KEY = 'chat_messages'
+const DEFAULT_GREETING = 'Hola. Puedo responder preguntas sobre los documentos cargados. ¿En qué te ayudo?'
 
 export default function Chat() {
-  const [messages, setMessages] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      return saved ? JSON.parse(saved) : [INITIAL_MESSAGE]
-    } catch {
-      return [INITIAL_MESSAGE]
-    }
-  })
+  const { user, organizationId, areaId } = useAuth()
+  // Solo se persiste la conversación real (preguntas/respuestas), nunca el saludo: así el
+  // saludo siempre refleja la config vigente en vez de quedar "congelado" desde la primera
+  // vez que este usuario abrió el chat. Se guarda por usuario para no mezclar conversaciones
+  // si dos personas comparten el navegador.
+  const storageKey = `chat_messages_${user?.id ?? 'anon'}`
+
+  const [history, setHistory] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef()
 
+  // Saludo configurado por el admin (o area-admin) para la organización/área del usuario
+  // logueado, con fallback al de organización si el área no tiene uno propio activo.
+  const { data: settingsData } = useQuery({
+    queryKey: ['aisettings-active', organizationId, areaId],
+    queryFn: async () => {
+      const { data } = await getActiveAISettings(organizationId, areaId)
+      return data
+    },
+    enabled: !!organizationId,
+    retry: false,
+  })
+  const greeting = splitPrompt(settingsData?.systemPrompt).greeting || DEFAULT_GREETING
+  const messages = [{ role: 'bot', text: greeting }, ...history]
+
+  // Recarga el historial guardado cada vez que se conoce el usuario logueado (storageKey
+  // pasa de 'chat_messages_anon' al id real apenas resuelve el /me).
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages))
-  }, [messages])
+    try {
+      const saved = localStorage.getItem(storageKey)
+      setHistory(saved ? JSON.parse(saved) : [])
+    } catch {
+      setHistory([])
+    }
+  }, [storageKey])
+
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(history))
+  }, [history, storageKey])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages.length])
 
   const clearChat = () => {
-    setMessages([INITIAL_MESSAGE])
-    localStorage.removeItem(STORAGE_KEY)
+    setHistory([])
+    localStorage.removeItem(storageKey)
   }
 
   const handleSend = async (e) => {
@@ -38,15 +64,15 @@ export default function Chat() {
     const question = input.trim()
     if (!question || loading) return
 
-    setMessages((prev) => [...prev, { role: 'user', text: question }])
+    setHistory((prev) => [...prev, { role: 'user', text: question }])
     setInput('')
     setLoading(true)
 
     try {
-      const { data } = await askChat(question, ORG_ID)
-      setMessages((prev) => [...prev, { role: 'bot', text: data.answer, source: data.source }])
+      const { data } = await askChat(question, organizationId)
+      setHistory((prev) => [...prev, { role: 'bot', text: data.answer, source: data.source }])
     } catch {
-      setMessages((prev) => [...prev, { role: 'bot', text: 'Ocurrió un error. Intentá de nuevo.' }])
+      setHistory((prev) => [...prev, { role: 'bot', text: 'Ocurrió un error. Intentá de nuevo.' }])
     } finally {
       setLoading(false)
     }
