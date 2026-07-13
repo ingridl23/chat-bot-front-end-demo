@@ -11,6 +11,7 @@ import {
   getUsers,
   getUsersByArea,
   createUser,
+  updateUser,
   getAreas,
   createArea,
   updateArea,
@@ -385,6 +386,7 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
   const [selectedAreaId, setSelectedAreaId] = useState('')
   const [showCreate, setShowCreate] = useState(false)
   const [showCreateArea, setShowCreateArea] = useState(false)
+  const [editingMember, setEditingMember] = useState(null)
 
   const { data: areas = [] } = useQuery({
     queryKey: ['areas'],
@@ -494,6 +496,15 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
                     >
                       {member.enabled ? 'Activo' : 'Inactivo'}
                     </span>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => setEditingMember(member)}
+                        className="text-[11.5px] font-semibold cursor-pointer transition text-[var(--muted)] hover:text-[var(--text)]"
+                      >
+                        Editar
+                      </button>
+                    )}
                   </div>
                 </li>
               )
@@ -520,6 +531,18 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
           onSaved={() => {
             queryClient.invalidateQueries({ queryKey: ['areas'] })
             setShowCreateArea(false)
+          }}
+        />
+      )}
+
+      {editingMember && (
+        <EditUserModal
+          member={editingMember}
+          areas={areas}
+          onClose={() => setEditingMember(null)}
+          onSaved={() => {
+            queryClient.invalidateQueries({ queryKey: ['members', organizationId] })
+            setEditingMember(null)
           }}
         />
       )}
@@ -728,6 +751,144 @@ function CreateUserModal({ areas, onClose, onCreated }) {
             style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
           >
             {isPending ? 'Creando...' : 'Crear usuario'}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+function EditUserModal({ member, areas, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    userName: member.userName || '',
+    lastName: member.lastName || '',
+    email: member.email || '',
+    enabled: member.enabled ?? true,
+    areaId: String(member.areaId ?? member.area?.id ?? ''),
+    roleId: '',
+  })
+  const [error, setError] = useState('')
+
+  const { data: rolesData, isError: rolesError } = useQuery({
+    queryKey: ['roles'],
+    queryFn: async () => {
+      const { data } = await getRoles()
+      return data
+    },
+    retry: false,
+  })
+  const roles = Array.isArray(rolesData) ? rolesData : []
+
+  // El rol del miembro puede venir como objeto ({id, name}) o como string suelto
+  // (ver nota en createUser/CreateUserModal); si es string, hay que resolver el id
+  // buscándolo por nombre una vez que la lista de roles termine de cargar.
+  useEffect(() => {
+    if (form.roleId || roles.length === 0) return
+    const firstRole = (member.roles || [])[0]
+    if (!firstRole) return
+    const matchId = typeof firstRole === 'object'
+      ? firstRole.id
+      : roles.find((r) => r.name?.toLowerCase() === String(firstRole).toLowerCase())?.id
+    if (matchId != null) setForm((f) => ({ ...f, roleId: String(matchId) }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roles])
+
+  const { mutate: save, isPending } = useMutation({
+    mutationFn: () => updateUser(member.id, {
+      userName: form.userName,
+      lastName: form.lastName,
+      email: form.email,
+      enabled: form.enabled,
+      areaId: Number(form.areaId),
+      rolesId: [Number(form.roleId)],
+    }),
+    onSuccess: onSaved,
+    onError: (err) => setError(getErrorMessage(err)),
+  })
+
+  const set = (key) => (e) => setForm({ ...form, [key]: e.target.value })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setError('')
+    save()
+  }
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-[2px]">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-[20px] p-7 max-w-md w-[90%] mx-4 bg-[var(--panel)] border border-[var(--border-strong)]"
+        style={{ boxShadow: '0 30px 70px -20px rgba(0,0,0,0.5)' }}
+      >
+        <h2 className="text-lg font-bold text-[var(--text)] mb-5">Editar usuario</h2>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={label}>Usuario</label>
+            <input type="text" value={form.userName} onChange={set('userName')} className={field} required />
+          </div>
+          <div>
+            <label className={label}>Apellido</label>
+            <input type="text" value={form.lastName} onChange={set('lastName')} className={field} required />
+          </div>
+        </div>
+
+        <label className={`${label} mt-3`}>Email</label>
+        <input type="email" value={form.email} onChange={set('email')} className={field} required />
+
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <div>
+            <label className={label}>Área</label>
+            <select value={form.areaId} onChange={set('areaId')} className={field} required>
+              <option value="" disabled>Elegir área</option>
+              {areas.map((area) => (
+                <option key={area.id} value={area.id}>{area.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={label}>Rol</label>
+            <select value={form.roleId} onChange={set('roleId')} className={field} required>
+              <option value="" disabled>Elegir rol</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>{role.name}</option>
+              ))}
+            </select>
+            {rolesError && (
+              <p className="text-[11.5px] mt-1" style={{ color: 'var(--danger)' }}>
+                No se pudieron cargar los roles disponibles.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <label className="flex items-center gap-2 mt-4 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.enabled}
+            onChange={(e) => setForm({ ...form, enabled: e.target.checked })}
+          />
+          <span className="text-[13px] text-[var(--text-2)]">Usuario activo</span>
+        </label>
+
+        {error && <p className="text-sm mt-4" style={{ color: 'var(--danger)' }}>{error}</p>}
+
+        <div className="flex gap-2.5 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition border border-[var(--border-strong)] text-[var(--text-2)] hover:bg-[var(--panel-2)]"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition hover:opacity-90 disabled:opacity-50"
+            style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
+          >
+            {isPending ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>
       </form>

@@ -93,6 +93,9 @@ export const getUsersByArea = (areaId) =>
 export const createUser = (data) =>
     api.post('/users', data)
 
+export const updateUser = (id, data) =>
+    api.put(`/users/${id}`, data)
+
 // --- Roles y áreas (para selects de administración) ---
 export const getRoles = () =>
     api.get('/roles')
