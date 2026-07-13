@@ -13,6 +13,7 @@ import {
   createUser,
   getAreas,
   createArea,
+  updateArea,
   getRoles,
   getErrorMessage,
 } from '../services/api'
@@ -514,8 +515,9 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
 
       {showCreateArea && (
         <CreateAreaModal
+          areas={areas}
           onClose={() => setShowCreateArea(false)}
-          onCreated={() => {
+          onSaved={() => {
             queryClient.invalidateQueries({ queryKey: ['areas'] })
             setShowCreateArea(false)
           }}
@@ -525,13 +527,16 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
   )
 }
 
-function CreateAreaModal({ onClose, onCreated }) {
+function CreateAreaModal({ areas, onClose, onSaved }) {
+  const [areaId, setAreaId] = useState('')
   const [name, setName] = useState('')
   const [error, setError] = useState('')
 
+  const isEditing = areaId !== ''
+
   const { mutate: save, isPending } = useMutation({
-    mutationFn: () => createArea({ name }),
-    onSuccess: onCreated,
+    mutationFn: () => (isEditing ? updateArea(areaId, { name }) : createArea({ name })),
+    onSuccess: onSaved,
     onError: (err) => setError(getErrorMessage(err)),
   })
 
@@ -541,6 +546,12 @@ function CreateAreaModal({ onClose, onCreated }) {
     save()
   }
 
+  const handleSelectArea = (e) => {
+    const id = e.target.value
+    setAreaId(id)
+    setName(id ? areas.find((a) => String(a.id) === id)?.name ?? '' : '')
+  }
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-[2px]">
       <form
@@ -548,7 +559,15 @@ function CreateAreaModal({ onClose, onCreated }) {
         className="rounded-[20px] p-7 max-w-md w-[90%] mx-4 bg-[var(--panel)] border border-[var(--border-strong)]"
         style={{ boxShadow: '0 30px 70px -20px rgba(0,0,0,0.5)' }}
       >
-        <h2 className="text-lg font-bold text-[var(--text)] mb-5">Crear área</h2>
+        <h2 className="text-lg font-bold text-[var(--text)] mb-5">{isEditing ? 'Editar área' : 'Crear área'}</h2>
+
+        <label className={label}>Área a editar</label>
+        <select value={areaId} onChange={handleSelectArea} className={`${field} mb-3.5`}>
+          <option value="">— Nueva área —</option>
+          {areas.map((area) => (
+            <option key={area.id} value={area.id}>{area.name}</option>
+          ))}
+        </select>
 
         <label className={label}>Nombre del área</label>
         <input
@@ -577,7 +596,7 @@ function CreateAreaModal({ onClose, onCreated }) {
             className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition hover:opacity-90 disabled:opacity-50"
             style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
           >
-            {isPending ? 'Creando...' : 'Crear área'}
+            {isPending ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear área'}
           </button>
         </div>
       </form>
