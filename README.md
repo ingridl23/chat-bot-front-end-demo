@@ -1,13 +1,31 @@
-# Rediseño visual — dirección "Graphite"
+Chatbot Inteligente con IA Generativa — Full Stack Developer
 
-Port del rediseño (gris cálido, corporativo, tema claro/oscuro, íconos SVG) a tus
-componentes React reales. **Solo cambia lo visual**: se conserva toda tu lógica
-(react-query, axios, react-router, control de inactividad, localStorage).
+Desarrollo de una aplicación web de chatbot inteligente basada en arquitectura Full Stack, implementando un backend robusto con Java 17 y Spring Boot, y un frontend moderno con React + Vite.
 
-## Cómo integrarlo
+El sistema integra modelos de inteligencia artificial mediante la API de Groq, permitiendo procesamiento de lenguaje natural y generación de respuestas contextuales. Se implementó una arquitectura RAG (Retrieval-Augmented Generation) utilizando Spring AI y PostgreSQL con extensión pgvector para almacenamiento y búsqueda semántica de documentos mediante embeddings.
 
-Copiá el contenido de esta carpeta `src/` sobre el `src/` de tu repo
-`chat-bot-front-end-demo`. Se respeta tu estructura, así que es reemplazo directo:
+En el backend se desarrolló una API REST segura utilizando Spring Security, autenticación mediante JWT (JSON Web Tokens) y control de acceso basado en roles y permisos. Se implementaron módulos para gestión de usuarios, organizaciones, áreas, documentos, configuraciones de IA y consultas conversacionales.
+
+El frontend fue desarrollado con React, Vite y npm, consumiendo la API REST mediante Axios, incorporando manejo de autenticación, almacenamiento de tokens, protección de rutas y una interfaz dinámica para interacción con el asistente virtual.
+
+El proyecto fue desplegado en infraestructura cloud utilizando Render para el backend y frontend, junto con una base de datos PostgreSQL administrada en Neon, configurando variables de entorno, conexión segura y ambientes de producción.
+
+Tecnologías utilizadas:
+
+Java 17
+Spring Boot 3
+Spring Security + JWT
+Spring Data JPA / Hibernate
+Spring AI
+Groq API (LLM)
+PostgreSQL + pgvector
+React
+Vite
+npm
+Axios
+Git/GitHub
+Render
+Neon PostgreSQL
 
 ```
 src/
@@ -28,8 +46,6 @@ src/
 └── services/
     └── api.js                (igual que el tuyo)
 ```
-
-No cambian dependencias ni `package.json`. Corré `npm run dev` como siempre.
 
 ## Cómo funciona el tema claro/oscuro
 
