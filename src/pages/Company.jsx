@@ -12,6 +12,7 @@ import {
   getUsersByArea,
   createUser,
   getAreas,
+  createArea,
   getRoles,
   getErrorMessage,
 } from '../services/api'
@@ -382,6 +383,7 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
   const queryClient = useQueryClient()
   const [selectedAreaId, setSelectedAreaId] = useState('')
   const [showCreate, setShowCreate] = useState(false)
+  const [showCreateArea, setShowCreateArea] = useState(false)
 
   const { data: areas = [] } = useQuery({
     queryKey: ['areas'],
@@ -426,6 +428,15 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
                   <option key={area.id} value={area.id}>{area.name}</option>
                 ))}
               </select>
+            )}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowCreateArea(true)}
+                className="rounded-[9px] px-3 py-1.5 text-[12.5px] font-semibold cursor-pointer transition border border-[var(--border-strong)] text-[var(--text-2)] hover:bg-[var(--panel-2)] whitespace-nowrap"
+              >
+                Crear área
+              </button>
             )}
             {isAdmin && (
               <button
@@ -500,6 +511,76 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
           }}
         />
       )}
+
+      {showCreateArea && (
+        <CreateAreaModal
+          onClose={() => setShowCreateArea(false)}
+          onCreated={() => {
+            queryClient.invalidateQueries({ queryKey: ['areas'] })
+            setShowCreateArea(false)
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+function CreateAreaModal({ onClose, onCreated }) {
+  const [name, setName] = useState('')
+  const [error, setError] = useState('')
+
+  const { mutate: save, isPending } = useMutation({
+    mutationFn: () => createArea({ name }),
+    onSuccess: onCreated,
+    onError: (err) => setError(getErrorMessage(err)),
+  })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setError('')
+    save()
+  }
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-[2px]">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-[20px] p-7 max-w-md w-[90%] mx-4 bg-[var(--panel)] border border-[var(--border-strong)]"
+        style={{ boxShadow: '0 30px 70px -20px rgba(0,0,0,0.5)' }}
+      >
+        <h2 className="text-lg font-bold text-[var(--text)] mb-5">Crear área</h2>
+
+        <label className={label}>Nombre del área</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={field}
+          placeholder="Ej: Ventas"
+          required
+          autoFocus
+        />
+
+        {error && <p className="text-sm mt-4" style={{ color: 'var(--danger)' }}>{error}</p>}
+
+        <div className="flex gap-2.5 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition border border-[var(--border-strong)] text-[var(--text-2)] hover:bg-[var(--panel-2)]"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="flex-1 rounded-[10px] py-2.5 text-[13.5px] font-semibold cursor-pointer transition hover:opacity-90 disabled:opacity-50"
+            style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
+          >
+            {isPending ? 'Creando...' : 'Crear área'}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }

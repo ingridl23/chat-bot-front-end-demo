@@ -100,4 +100,13 @@ export const getRoles = () =>
 export const getAreas = () =>
     api.get('/areas')
 
+export const getArea = (id) =>
+    api.get(`/areas/${id}`)
+
+export const createArea = (data) =>
+    api.post('/areas', data)
+
+export const updateArea = (id, data) =>
+    api.put(`/areas/${id}`, data)
+
 export default api
