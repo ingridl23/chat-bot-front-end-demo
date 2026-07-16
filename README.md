@@ -1,18 +1,18 @@
-#Chatbot Inteligente con IA Generativa — Full Stack Developer
+# Chatbot Inteligente con IA Generativa — Full Stack Developer
 
-##Desarrollo de una aplicación web de chatbot inteligente basada en arquitectura Full Stack, implementando un backend robusto con Java 17 y Spring Boot, y un frontend moderno con React + Vite.
+## Desarrollo de una aplicación web de chatbot inteligente basada en arquitectura Full Stack, implementando un backend robusto con Java 17 y Spring Boot, y un frontend moderno con React + Vite.
 
-##El sistema integra modelos de inteligencia artificial mediante la API de Groq, permitiendo procesamiento de lenguaje natural y generación de respuestas contextuales. Se implementó una arquitectura RAG (Retrieval-Augmented Generation) utilizando Spring AI y PostgreSQL con extensión pgvector para almacenamiento y búsqueda semántica de documentos mediante embeddings.
+## El sistema integra modelos de inteligencia artificial mediante la API de Groq, permitiendo procesamiento de lenguaje natural y generación de respuestas contextuales. Se implementó una arquitectura RAG (Retrieval-Augmented Generation) utilizando Spring AI y PostgreSQL con extensión pgvector para almacenamiento y búsqueda semántica de documentos mediante embeddings.
 
-*En el backend se desarrolló una API REST segura utilizando Spring Security, autenticación mediante JWT (JSON Web Tokens) y control de acceso basado en roles y permisos. Se implementaron módulos para gestión de usuarios, organizaciones, áreas, documentos, configuraciones de IA y consultas conversacionales.
+En el backend se desarrolló una API REST segura utilizando Spring Security, autenticación mediante JWT (JSON Web Tokens) y control de acceso basado en roles y permisos. Se implementaron módulos para gestión de usuarios, organizaciones, áreas, documentos, configuraciones de IA y consultas conversacionales.
 
-*El frontend fue desarrollado con React, Vite y npm, consumiendo la API REST mediante Axios, incorporando manejo de autenticación, almacenamiento de tokens, protección de rutas y una interfaz dinámica para interacción con el asistente virtual.
+El frontend fue desarrollado con React, Vite y npm, consumiendo la API REST mediante Axios, incorporando manejo de autenticación, almacenamiento de tokens, protección de rutas y una interfaz dinámica para interacción con el asistente virtual.
 
-*El proyecto fue desplegado en infraestructura cloud utilizando Render para el backend y frontend, junto con una base de datos PostgreSQL administrada en Neon, configurando variables de entorno, conexión segura y ambientes de producción.
+El proyecto fue desplegado en infraestructura cloud utilizando Render para el backend y frontend, junto con una base de datos PostgreSQL administrada en Neon, configurando variables de entorno, conexión segura y ambientes de producción.
 
-###DEMO PUBLICA EN EL SIGUIENTE ENLACE : https://chat-bot-front-end-demo.onrender.com/
+### DEMO PUBLICA EN EL SIGUIENTE ENLACE : https://chat-bot-front-end-demo.onrender.com/
 
-*Tecnologías utilizadas*:
+**Tecnologías utilizadas**:
 
 Java 17
 Spring Boot 3
