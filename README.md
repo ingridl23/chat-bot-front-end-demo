@@ -11,6 +11,12 @@ El frontend fue desarrollado con React, Vite y npm, consumiendo la API REST medi
 El proyecto fue desplegado en infraestructura cloud utilizando Render para el backend y frontend, junto con una base de datos PostgreSQL administrada en Neon, configurando variables de entorno, conexión segura y ambientes de producción.
 
 ### DEMO PUBLICA EN EL SIGUIENTE ENLACE : https://chat-bot-front-end-demo.onrender.com/
+ Usuarios de prueba para utilizar en la demo :
+ nivel 1 (global) = admin 12345678
+ nivel 2 (area 1) = admin2 12345678
+ nivel 2 (area 2) = admincontador 12345678
+ nivel 3 (area 1) = user 12345678
+ nivel 3 (area 2) =  juan 12345678
 
 **Tecnologías utilizadas**:
 
