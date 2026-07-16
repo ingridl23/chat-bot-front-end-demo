@@ -37,22 +37,22 @@ Neon PostgreSQL
 
 ```
 src/
-├── index.css                 (reemplaza — ahora define tokens + tema)
-├── main.jsx                  (igual que el tuyo)
-├── App.jsx                   (reemplaza — envuelve todo en <ThemeProvider>)
+├── index.css                 (ahora define tokens + tema)
+├── main.jsx                  
+├── App.jsx                   (envuelve todo en <ThemeProvider>)
 ├── context/
-│   └── ThemeContext.jsx      (NUEVO — estado del tema + persistencia)
+│   └── ThemeContext.jsx      (estado del tema + persistencia)
 ├── components/
-│   ├── icons.jsx             (NUEVO — íconos de línea SVG)
-│   ├── ThemeToggle.jsx       (NUEVO — toggle Claro/Oscuro reutilizable)
-│   └── Layout.jsx            (reemplaza)
+│   ├── icons.jsx             (íconos de línea SVG)
+│   ├── ThemeToggle.jsx       (toggle Claro/Oscuro reutilizable)
+│   └── Layout.jsx            
 ├── pages/
-│   ├── Login.jsx             (reemplaza)
-│   ├── Dashboard.jsx         (reemplaza)
-│   ├── Documents.jsx         (reemplaza)
-│   └── Chat.jsx              (reemplaza)
+│   ├── Login.jsx             
+│   ├── Dashboard.jsx         
+│   ├── Documents.jsx         
+│   └── Chat.jsx              
 └── services/
-    └── api.js                (igual que el tuyo)
+    └── api.js                (reglas de conversacion backend java)
 ```
 
 ## Cómo funciona el tema claro/oscuro
