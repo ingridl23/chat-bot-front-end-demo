@@ -13,11 +13,11 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto px-9 py-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-9 py-6 sm:py-10">
         <h2 className="text-2xl font-bold text-[var(--text)] mb-1.5 tracking-tight">Bienvenido</h2>
         <p className="text-[14.5px] text-[var(--text-2)] mb-7">Seleccioná una sección para comenzar.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {isStaff && (
             <button
               onClick={() => navigate('/documents')}

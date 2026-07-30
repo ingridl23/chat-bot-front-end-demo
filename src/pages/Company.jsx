@@ -52,7 +52,7 @@ export default function Company() {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto px-9 py-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-9 py-6 sm:py-10">
         <h2 className="text-2xl font-bold text-[var(--text)] mb-1.5 tracking-tight">
           {isAdmin ? 'Gestión de la empresa' : 'Mi área'}
         </h2>
@@ -63,7 +63,7 @@ export default function Company() {
         </p>
 
         <div
-          className="inline-flex items-center rounded-[10px] p-[3px] gap-[2px] mb-6"
+          className="inline-flex items-center rounded-[10px] p-[3px] gap-[2px] mb-6 max-w-full overflow-x-auto"
           style={{ background: 'var(--panel-2)' }}
         >
           {tabs.map((t) => (
@@ -159,7 +159,7 @@ function BrandingTab({ organizationId }) {
         setError('')
         save()
       }}
-      className="rounded-[16px] p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
+      className="rounded-[16px] p-4 sm:p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
       style={{ boxShadow: 'var(--shadow-sm)' }}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -294,7 +294,7 @@ function ChatToneTab({ organizationId, isAdmin, fixedAreaId }) {
         setError('')
         save()
       }}
-      className="rounded-[16px] p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
+      className="rounded-[16px] p-4 sm:p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
       style={{ boxShadow: 'var(--shadow-sm)' }}
     >
       {isAdmin && (
@@ -417,9 +417,14 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
         className="rounded-[16px] overflow-hidden bg-[var(--panel)] border border-[var(--border-strong)]"
         style={{ boxShadow: 'var(--shadow-sm)' }}
       >
-        <div className="flex items-center justify-between gap-3 px-[22px] py-4 border-b border-[var(--border)]">
-          <h3 className="text-sm font-semibold text-[var(--text)] whitespace-nowrap">{title}</h3>
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-[22px] py-4 border-b border-[var(--border)]">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-[var(--text)] whitespace-nowrap">{title}</h3>
+            <span className="text-[11px] text-[var(--muted)] font-mono whitespace-nowrap sm:hidden">
+              {users.length} integrante{users.length === 1 ? '' : 's'}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {isAdmin && (
               <select
                 value={selectedAreaId}
@@ -451,7 +456,7 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
                 Crear usuario
               </button>
             )}
-            <span className="text-[11px] text-[var(--muted)] font-mono whitespace-nowrap">
+            <span className="text-[11px] text-[var(--muted)] font-mono whitespace-nowrap hidden sm:inline">
               {users.length} integrante{users.length === 1 ? '' : 's'}
             </span>
           </div>
@@ -470,7 +475,7 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
               return (
                 <li
                   key={member.id}
-                  className="flex items-center justify-between gap-3 px-[22px] py-[15px] border-t border-[var(--border)]"
+                  className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 px-4 sm:px-[22px] py-[15px] border-t border-[var(--border)]"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-[var(--text)] truncate">
@@ -479,7 +484,7 @@ function MembersTab({ organizationId, isAdmin, myAreaId }) {
                     <p className="text-xs text-[var(--muted)] mt-0.5 truncate">{member.email}</p>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex flex-wrap items-center gap-3 shrink-0 ml-auto sm:ml-0">
                     {showAreaColumn && (
                       <span className="text-[11.5px] text-[var(--muted)]">
                         {member.area?.name ?? member.areaName ?? '—'}
@@ -579,7 +584,7 @@ function CreateAreaModal({ areas, onClose, onSaved }) {
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-[2px]">
       <form
         onSubmit={handleSubmit}
-        className="rounded-[20px] p-7 max-w-md w-[90%] mx-4 bg-[var(--panel)] border border-[var(--border-strong)]"
+        className="rounded-[20px] p-5 sm:p-7 max-w-md w-[90%] mx-4 max-h-[90vh] overflow-y-auto bg-[var(--panel)] border border-[var(--border-strong)]"
         style={{ boxShadow: '0 30px 70px -20px rgba(0,0,0,0.5)' }}
       >
         <h2 className="text-lg font-bold text-[var(--text)] mb-5">{isEditing ? 'Editar área' : 'Crear área'}</h2>
@@ -677,12 +682,12 @@ function CreateUserModal({ areas, onClose, onCreated }) {
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-[2px]">
       <form
         onSubmit={handleSubmit}
-        className="rounded-[20px] p-7 max-w-md w-[90%] mx-4 bg-[var(--panel)] border border-[var(--border-strong)]"
+        className="rounded-[20px] p-5 sm:p-7 max-w-md w-[90%] mx-4 max-h-[90vh] overflow-y-auto bg-[var(--panel)] border border-[var(--border-strong)]"
         style={{ boxShadow: '0 30px 70px -20px rgba(0,0,0,0.5)' }}
       >
         <h2 className="text-lg font-bold text-[var(--text)] mb-5">Crear usuario</h2>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className={label}>Usuario</label>
             <input type="text" value={form.userName} onChange={set('userName')} className={field} required />
@@ -699,7 +704,7 @@ function CreateUserModal({ areas, onClose, onCreated }) {
         <label className={`${label} mt-3`}>Contraseña</label>
         <input type="password" value={form.password} onChange={set('password')} className={field} minLength={8} required />
 
-        <div className="grid grid-cols-2 gap-3 mt-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
           <div>
             <label className={label}>Área</label>
             <select value={form.areaId} onChange={set('areaId')} className={field} required>
@@ -818,12 +823,12 @@ function EditUserModal({ member, areas, onClose, onSaved }) {
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-[2px]">
       <form
         onSubmit={handleSubmit}
-        className="rounded-[20px] p-7 max-w-md w-[90%] mx-4 bg-[var(--panel)] border border-[var(--border-strong)]"
+        className="rounded-[20px] p-5 sm:p-7 max-w-md w-[90%] mx-4 max-h-[90vh] overflow-y-auto bg-[var(--panel)] border border-[var(--border-strong)]"
         style={{ boxShadow: '0 30px 70px -20px rgba(0,0,0,0.5)' }}
       >
         <h2 className="text-lg font-bold text-[var(--text)] mb-5">Editar usuario</h2>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className={label}>Usuario</label>
             <input type="text" value={form.userName} onChange={set('userName')} className={field} required />
@@ -837,7 +842,7 @@ function EditUserModal({ member, areas, onClose, onSaved }) {
         <label className={`${label} mt-3`}>Email</label>
         <input type="email" value={form.email} onChange={set('email')} className={field} required />
 
-        <div className="grid grid-cols-2 gap-3 mt-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
           <div>
             <label className={label}>Área</label>
             <select value={form.areaId} onChange={set('areaId')} className={field} required>

@@ -108,12 +108,12 @@ export default function Documents() {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto px-9 py-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-9 py-6 sm:py-10">
         <h2 className="text-2xl font-bold text-[var(--text)] mb-6 tracking-tight">Documentos</h2>
 
         {/* Subir */}
         <div
-          className="rounded-[16px] p-[22px] mb-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
+          className="rounded-[16px] p-4 sm:p-[22px] mb-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
           style={{ boxShadow: 'var(--shadow-sm)' }}
         >
           <h3 className="text-sm font-semibold text-[var(--text)] mb-4">Subir nuevo documento</h3>
@@ -130,7 +130,7 @@ export default function Documents() {
             required
           />
 
-          <label className="flex items-center gap-3 mb-1 cursor-pointer">
+          <label className="flex flex-wrap items-center gap-3 mb-1 cursor-pointer">
             <span
               className="inline-flex items-center gap-1.5 rounded-[9px] px-3.5 py-2.5 text-[13px] font-semibold whitespace-nowrap"
               style={{ background: 'var(--panel-2)', color: 'var(--text)' }}
@@ -191,7 +191,7 @@ export default function Documents() {
           className="rounded-[16px] overflow-hidden bg-[var(--panel)] border border-[var(--border-strong)]"
           style={{ boxShadow: 'var(--shadow-sm)' }}
         >
-          <div className="flex items-center justify-between px-[22px] py-4 border-b border-[var(--border)]">
+          <div className="flex items-center justify-between gap-3 px-4 sm:px-[22px] py-4 border-b border-[var(--border)]">
             <h3 className="text-sm font-semibold text-[var(--text)] whitespace-nowrap">Documentos cargados</h3>
             <span className="text-[11px] text-[var(--muted)] font-mono whitespace-nowrap">
               {documents.length} archivo{documents.length === 1 ? '' : 's'}
@@ -199,7 +199,7 @@ export default function Documents() {
           </div>
 
           {deleteError && (
-            <p className="text-sm px-[22px] pt-3" style={{ color: 'var(--danger)' }}>{deleteError}</p>
+            <p className="text-sm px-4 sm:px-[22px] pt-3" style={{ color: 'var(--danger)' }}>{deleteError}</p>
           )}
 
           {isLoading ? (
@@ -211,21 +211,21 @@ export default function Documents() {
               {documents.map((doc) => (
                 <li
                   key={doc.id}
-                  className="flex items-center justify-between px-[22px] py-[15px] border-t border-[var(--border)]"
+                  className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 px-4 sm:px-[22px] py-[15px] border-t border-[var(--border)]"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className="w-[38px] h-[38px] rounded-[9px] flex items-center justify-center"
+                      className="w-[38px] h-[38px] rounded-[9px] flex items-center justify-center shrink-0"
                       style={{ background: 'var(--panel-2)', color: 'var(--text-2)' }}
                     >
                       <IconDoc />
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[var(--text)]">{doc.title}</p>
-                      <p className="text-xs text-[var(--muted)] mt-0.5 font-mono">{doc.fileName}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[var(--text)] truncate">{doc.title}</p>
+                      <p className="text-xs text-[var(--muted)] mt-0.5 font-mono truncate">{doc.fileName}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto sm:ml-0">
                     {isGlobalDoc(doc) && (
                       <span
                         className="rounded-[9px] px-2.5 py-1.5 text-[11.5px] font-semibold whitespace-nowrap"
@@ -234,14 +234,14 @@ export default function Documents() {
                         Global
                       </span>
                     )}
-                    <span className="text-[12.5px] text-[var(--muted)] font-mono">{formatSize(doc.fileSize)}</span>
+                    <span className="text-[12.5px] text-[var(--muted)] font-mono whitespace-nowrap">{formatSize(doc.fileSize)}</span>
                     {(isAdmin || !isGlobalDoc(doc)) && (
                       <button
                         type="button"
                         onClick={() => setDocToDelete(doc)}
                         disabled={isDeleting && deletingId?.id === doc.id}
                         aria-label={`Eliminar ${doc.title}`}
-                        className="w-8 h-8 rounded-[9px] flex items-center justify-center cursor-pointer transition text-[var(--muted)]
+                        className="w-8 h-8 rounded-[9px] flex items-center justify-center cursor-pointer transition text-[var(--muted)] shrink-0
                           hover:bg-[var(--danger-bg)] hover:text-[var(--danger)] disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <IconTrash size={15} />

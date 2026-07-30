@@ -21,7 +21,7 @@ export default function Profile() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="max-w-xl mx-auto px-9 py-10">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-9 py-6 sm:py-10">
           <p className="text-sm text-[var(--muted)]">Cargando perfil...</p>
         </div>
       </Layout>
@@ -31,7 +31,7 @@ export default function Profile() {
   if (isError || !user) {
     return (
       <Layout>
-        <div className="max-w-xl mx-auto px-9 py-10">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-9 py-6 sm:py-10">
           <p className="text-sm mb-3" style={{ color: 'var(--danger)' }}>
             No se pudo cargar tu perfil. Puede que el servidor no esté disponible o tu sesión haya expirado.
           </p>
@@ -50,7 +50,7 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="max-w-xl mx-auto px-9 py-10">
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-9 py-6 sm:py-10">
         <h2 className="text-2xl font-bold text-[var(--text)] mb-1.5 tracking-tight">Mi perfil</h2>
         <p className="text-[14.5px] text-[var(--text-2)] mb-7">Vé y editá tus datos personales.</p>
 
@@ -58,7 +58,7 @@ export default function Profile() {
         <PasswordForm />
 
         <div
-          className="mt-[22px] rounded-[16px] p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
+          className="mt-[22px] rounded-[16px] p-4 sm:p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
           style={{ boxShadow: 'var(--shadow-sm)' }}
         >
           <h3 className="text-sm font-semibold text-[var(--text)] mb-3">Información de la cuenta</h3>
@@ -116,7 +116,7 @@ function PersonalDataForm({ user }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[16px] p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
+      className="rounded-[16px] p-4 sm:p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
       style={{ boxShadow: 'var(--shadow-sm)' }}
     >
       <h3 className="text-sm font-semibold text-[var(--text)] mb-4">Datos personales</h3>
@@ -201,7 +201,7 @@ function PasswordForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-[22px] rounded-[16px] p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
+      className="mt-[22px] rounded-[16px] p-4 sm:p-[22px] bg-[var(--panel)] border border-[var(--border-strong)]"
       style={{ boxShadow: 'var(--shadow-sm)' }}
     >
       <h3 className="text-sm font-semibold text-[var(--text)] mb-4">Cambiar contraseña</h3>

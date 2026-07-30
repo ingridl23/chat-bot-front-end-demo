@@ -89,15 +89,15 @@ export default function Chat() {
 
   return (
     <Layout>
-      <div className="max-w-[720px] mx-auto px-9 py-7 h-screen flex flex-col">
-        <div className="flex items-center justify-between mb-[18px]">
-          <div>
-            <h2 className="text-xl font-bold text-[var(--text)] tracking-tight">Chat con el agente</h2>
-            <p className="text-[12.5px] text-[var(--muted)] mt-0.5">Responde según tus documentos cargados</p>
+      <div className="max-w-[720px] mx-auto px-4 sm:px-6 lg:px-9 py-4 sm:py-7 h-screen flex flex-col">
+        <div className="flex items-center justify-between gap-3 mb-[18px]">
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-[var(--text)] tracking-tight truncate">Chat con el agente</h2>
+            <p className="text-[12.5px] text-[var(--muted)] mt-0.5 hidden sm:block">Responde según tus documentos cargados</p>
           </div>
           <button
             onClick={clearChat}
-            className="rounded-[9px] px-3 py-[7px] text-[12.5px] cursor-pointer transition whitespace-nowrap
+            className="rounded-[9px] px-3 py-[7px] text-[12.5px] cursor-pointer transition whitespace-nowrap shrink-0
               bg-[var(--panel)] text-[var(--text-2)] border border-[var(--border-strong)] hover:bg-[var(--panel-2)]"
           >
             Limpiar historial

@@ -89,6 +89,18 @@ export const IconUser = ({ size = 18, ...p }) => (
   </svg>
 )
 
+export const IconMenu = ({ size = 20, ...p }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...base} {...p}>
+    <path d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+)
+
+export const IconX = ({ size = 18, ...p }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...base} {...p}>
+    <path d="M6 6l12 12M18 6 6 18" />
+  </svg>
+)
+
 export const IconBuilding = ({ size = 18, ...p }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" {...base} {...p}>
     <path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16" />

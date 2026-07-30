@@ -1,8 +1,8 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../context/AuthContext'
-import { IconHome, IconDoc, IconChat, IconUser, IconBuilding, IconLogout, IconClock } from './icons'
+import { IconHome, IconDoc, IconChat, IconUser, IconBuilding, IconLogout, IconClock, IconMenu, IconX } from './icons'
 
 const INACTIVITY_MS = 10 * 60 * 1000
 const WARNING_SECS = 60
@@ -13,11 +13,18 @@ const profileItem = { to: '/profile', label: 'Mi perfil', Icon: IconUser }
 
 export default function Layout({ children }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAdmin, isStaff, user, logout: authLogout } = useAuth()
   const [showWarning, setShowWarning] = useState(false)
   const [countdown, setCountdown] = useState(WARNING_SECS)
+  const [navOpen, setNavOpen] = useState(false)
   const inactivityTimer = useRef(null)
   const countdownTimer = useRef(null)
+
+  // Cierra el drawer móvil cada vez que se navega a otra sección.
+  useEffect(() => {
+    setNavOpen(false)
+  }, [location.pathname])
 
   const logout = useCallback(() => {
     authLogout()
@@ -71,18 +78,61 @@ export default function Layout({ children }) {
 
   return (
     <div className="flex min-h-screen bg-[var(--bg)]">
-      <aside className="w-[212px] shrink-0 flex flex-col px-3.5 py-4 bg-[var(--panel)] border-r border-[var(--border)]">
-        <div className="flex items-center gap-2.5 px-2 pt-1 pb-4">
+      {/* Topbar solo en móvil/tablet */}
+      <div className="lg:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between px-4 py-3 bg-[var(--panel)] border-b border-[var(--border)]">
+        <div className="flex items-center gap-2.5">
           <div
-            className="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center font-bold text-[15px]"
+            className="w-8 h-8 rounded-[9px] flex items-center justify-center font-bold text-[14px]"
             style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
           >
             C
           </div>
-          <div>
-            <div className="text-[15px] font-bold text-[var(--text)] leading-none whitespace-nowrap">ChatBot</div>
-            <div className="text-[11.5px] text-[var(--muted)] mt-0.5 whitespace-nowrap h-[14px] leading-[14px]">{user?.organization?.name ?? user?.organizationName}</div>
+          <div className="text-[15px] font-bold text-[var(--text)] leading-none">ChatBot</div>
+        </div>
+        <button
+          onClick={() => setNavOpen(true)}
+          aria-label="Abrir menú"
+          className="w-9 h-9 rounded-[9px] flex items-center justify-center text-[var(--text-2)] hover:bg-[var(--panel-2)] transition"
+        >
+          <IconMenu />
+        </button>
+      </div>
+
+      {/* Overlay del drawer en móvil/tablet */}
+      {navOpen && (
+        <div
+          onClick={() => setNavOpen(false)}
+          className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]"
+        />
+      )}
+
+      <aside
+        className={
+          'w-[212px] shrink-0 flex flex-col px-3.5 py-4 bg-[var(--panel)] border-r border-[var(--border)] ' +
+          'fixed inset-y-0 left-0 z-50 transition-transform duration-200 lg:static lg:translate-x-0 ' +
+          (navOpen ? 'translate-x-0' : '-translate-x-full')
+        }
+      >
+        <div className="flex items-center justify-between px-2 pt-1 pb-4">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center font-bold text-[15px]"
+              style={{ background: 'var(--accent)', color: 'var(--accent-text)' }}
+            >
+              C
+            </div>
+            <div>
+              <div className="text-[15px] font-bold text-[var(--text)] leading-none whitespace-nowrap">ChatBot</div>
+              <div className="text-[11.5px] text-[var(--muted)] mt-0.5 whitespace-nowrap h-[14px] leading-[14px]">{user?.organization?.name ?? user?.organizationName}</div>
+            </div>
           </div>
+          <button
+            onClick={() => setNavOpen(false)}
+            aria-label="Cerrar menú"
+            className="lg:hidden w-7 h-7 rounded-[8px] flex items-center justify-center text-[var(--muted)] hover:bg-[var(--panel-2)] transition"
+          >
+            <IconX size={16} />
+          </button>
         </div>
 
         <nav className="flex flex-col gap-0.5 mt-1">
@@ -110,7 +160,7 @@ export default function Layout({ children }) {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto h-screen">
+      <main className="flex-1 overflow-y-auto h-screen pt-[57px] lg:pt-0">
         {children}
       </main>
 
