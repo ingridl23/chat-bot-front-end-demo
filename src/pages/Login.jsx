@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../services/api'
-import { useAuth } from '../context/AuthContext'
 import ThemeToggle from '../components/ThemeToggle'
+import { useAuth } from '../context/AuthContext'
+import { login } from '../services/api'
 
 export default function Login() {
   const [form, setForm] = useState({ userName: '', password: '' })
@@ -16,7 +16,9 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      const { data: token } = await login(form.userName, form.password)
+     // const { data: token } = await login(form.userName, form.password)
+     const { data } = await login(form.userName, form.password)
+     const token = data.token
       // setToken tira la cache de la sesión anterior y dispara un GET /users/me
       // fresco con el token nuevo (ver AuthContext).
       setToken(token)
